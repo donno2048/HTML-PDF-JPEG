@@ -17,3 +17,5 @@ def embed(html: bytes, pdf: bytes, jpeg: bytes) -> bytes:
 def main(html: bytes, pdf: bytes, jpeg: bytes, outfile: str) -> bytes:
     open(outfile, "wb").write(embed(text2html(html), text2pdf(pdf), text2jpeg(jpeg)))
 main(b"HTML", b"PDF", b"JPEG", "main.html")
+main(b"HTML", b"PDF", b"JPEG", "main.pdf")
+main(b"HTML", b"PDF", b"JPEG", "main.jpeg")
