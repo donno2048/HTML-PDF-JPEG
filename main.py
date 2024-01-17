@@ -16,6 +16,23 @@ def embed(html: bytes, pdf: bytes, jpeg: bytes) -> bytes:
     return jpeg[:offset] + b"\xff\xfe" + pack(">h", len(pdf) + len(html) + 11) + html + b"<!--%PDF\n" + pdf + jpeg[offset:]
 def main(html: bytes, pdf: bytes, jpeg: bytes, outfile: str) -> bytes:
     open(outfile, "wb").write(embed(text2html(html), text2pdf(pdf), text2jpeg(jpeg)))
-main(b"HTML", b"PDF", b"JPEG", "main.html")
-main(b"HTML", b"PDF", b"JPEG", "main.pdf")
-main(b"HTML", b"PDF", b"JPEG", "main.jpeg")
+text = """
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs" type="module"></script>
+<script>
+window.onload = () => {
+    var { pdfjsLib } = globalThis;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';
+    pdfjsLib.getDocument(window.location.href).promise.then(pdf =>
+        pdf.getPage(1).then(page =>
+            page.render({canvasContext: document.getElementById('pdf').getContext('2d'), viewport: page.getViewport({scale: .1})})
+        )
+    );
+};
+</script>
+This HTML page is also a valid PDF file and a valid JPEG image.<br>
+If you download this HTML page and rename it to ".jpeg" you'll see this image:<br>
+<img src=.><br>
+And if you rename if to ".pdf" you'll see this PDF:<br>
+<canvas id=pdf></canvas>
+"""
+main(text.replace("\n", "").encode(), b"PDF", b"JPEG", "index.html")
